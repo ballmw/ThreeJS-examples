@@ -1,0 +1,58 @@
+Ext.ns('App', 'App.views');
+
+App.defaultAnim = Ext.is.Android ? false : 'slide';
+App = new Ext.Application({
+	defaultTarget : "viewport",
+	name : "app",
+
+	profiles : {
+		phone : function() {
+			return Ext.is.Phone;
+		},
+		tabletPortrait : function() {
+			return Ext.is.Tablet && Ext.getOrientation() == 'portrait';
+		},
+		tabletLandscape : function() {
+			return Ext.is.Tablet && Ext.getOrientation() == 'landscape';
+		}
+	},
+
+	launch : function() {
+		this.locationInitialized = false;
+		console.log('on orientation:');
+		console.log((( typeof window.orientation != 'undefined') && ('onorientationchange' in window)));
+
+		console.log(window.orientation);
+		console.log(Ext.getOrientation());
+		this.orientation = window.orientation == 0 || window.orientation == 180 ? 'portrait' : 'landscape';
+		this.orientation = Ext.getOrientation();
+		
+		this.sphereView = new App.views.Sphere();
+        this.viewport = this.sphereView;
+		this.on('profilechange', this.onProfileChange);
+	},
+	onProfileChange : function(profile, oldProfile) {
+		console.log('change profile is ' + profile + ' was ' + oldProfile);
+		if(profile === 'tabletPortrait')
+			App.displayPortrait();
+		else
+			App.displayLandscape();
+	},
+	location_init : function(onLocation) {
+		if(navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(onLocation, this.location_failure);
+		}
+	},
+	displayLandscape : function() {
+
+		console.log("landscape : width:" + window.innerWidth + " height:" + window.innerHeight);
+		App.orientation = 'landscape';
+		App.viewport.displayLandscape();
+	},
+	displayPortrait : function() {
+
+		console.log("portrait : width:" + window.innerWidth + " height:" + window.innerHeight);
+		App.orientation = 'portrait';
+		App.viewport.displayPortrait();
+	}
+});
